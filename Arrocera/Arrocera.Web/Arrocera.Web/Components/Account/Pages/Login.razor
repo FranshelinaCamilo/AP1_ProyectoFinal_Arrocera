@@ -1,0 +1,244 @@
+﻿@page "/"
+@layout AuthLayout
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using Arrocera.Web.Data
+@using Arrocera.Web.Components.Layout
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<Login> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Iniciar sesión - Arrocera Duarte SRL</PageTitle>
+
+<style>
+    .login-wrapper {
+        position: fixed;
+        inset: 0;
+        min-height: 100dvh;
+        width: 100vw;
+        background: linear-gradient(135deg, #f4f6fb 0%, #e4e9f4 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        overflow-y: auto;
+        z-index: 1050;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 430px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 16px;
+        box-shadow: 0 12px 32px rgba(6, 9, 61, 0.08);
+        padding: 2.25rem;
+    }
+
+    .brand-badge {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background-color: #0A0C2E;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.15rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .btn-arrocera {
+        background-color: #0A0C2E;
+        border-color: #0A0C2E;
+        color: #ffffff;
+        font-weight: 600;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+        .btn-arrocera:hover,
+        .btn-arrocera:focus {
+            background-color: #06093D;
+            border-color: #06093D;
+            color: #ffffff;
+        }
+
+    .form-control {
+        border-radius: 10px;
+        border-color: #cbd5e1;
+        color: #0A0C2E;
+    }
+
+        .form-control:focus {
+            border-color: #06093D;
+            box-shadow: 0 0 0 0.2rem rgba(6, 9, 61, 0.15);
+        }
+
+    .form-check-input:checked {
+        background-color: #0A0C2E;
+        border-color: #0A0C2E;
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <div class="brand-badge">AD</div>
+            <h1 class="h4 fw-bold mb-1" style="color: #06093D;">Arrocera Duarte SRL</h1>
+            <p class="small mb-0" style="color: #11184A;">Laboratorio de Calidad — Inicia sesión para continuar</p>
+        </div>
+
+        <StatusMessage Message="@errorMessage" />
+
+        <EditForm EditContext="editContext" method="post" OnSubmit="LoginUser" FormName="login">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger small mb-3" role="alert" />
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Email"
+                           id="Input.Email"
+                           class="form-control"
+                           autocomplete="username"
+                           aria-required="true"
+                           placeholder="correo@arroceraduarte.com" />
+                <label for="Input.Email">Correo electrónico</label>
+                <ValidationMessage For="() => Input.Email" class="text-danger small mt-1" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText type="password"
+                           @bind-Value="Input.Password"
+                           id="Input.Password"
+                           class="form-control"
+                           autocomplete="current-password"
+                           aria-required="true"
+                           placeholder="Contraseña" />
+                <label for="Input.Password">Contraseña</label>
+                <ValidationMessage For="() => Input.Password" class="text-danger small mt-1" />
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="form-check mb-0">
+                    <InputCheckbox @bind-Value="Input.RememberMe"
+                                   id="Input.RememberMe"
+                                   class="form-check-input" />
+                    <label for="Input.RememberMe" class="form-check-label small" style="color: #11184A;">
+                        Recordarme
+                    </label>
+                </div>
+
+                <a href="Account/ForgotPassword" class="small text-decoration-none" style="color: #11184A;">
+                    ¿Olvidaste tu clave?
+                </a>
+            </div>
+
+            <button type="submit" class="w-100 btn btn-arrocera">
+                Iniciar sesión
+            </button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private string? errorMessage;
+    private EditContext editContext = default!;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = default!;
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Input ??= new();
+
+        editContext = new EditContext(Input);
+
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+    }
+
+    public async Task LoginUser()
+    {
+        if (!string.IsNullOrEmpty(Input.Passkey?.Error))
+        {
+            errorMessage = $"Error: {Input.Passkey.Error}";
+            return;
+        }
+
+        SignInResult result;
+        if (!string.IsNullOrEmpty(Input.Passkey?.CredentialJson))
+        {
+            result = await SignInManager.PasskeySignInAsync(Input.Passkey.CredentialJson);
+        }
+        else
+        {
+            if (!await editContext.ValidateAsync())
+            {
+                return;
+            }
+
+            var user = await UserManager.FindByEmailAsync(Input.Email)
+                       ?? await UserManager.FindByNameAsync(Input.Email);
+
+            if (user is not null && !user.Activo)
+            {
+                errorMessage = "Error: Esta cuenta está desactivada. Contacta al administrador.";
+                return;
+            }
+
+            result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+        }
+
+        if (result.Succeeded)
+        {
+            Logger.LogInformation("User logged in.");
+            RedirectManager.RedirectTo(string.IsNullOrWhiteSpace(ReturnUrl) ? "/Home" : ReturnUrl);
+        }
+        else if (result.RequiresTwoFactor)
+        {
+            RedirectManager.RedirectTo(
+                "Account/LoginWith2fa",
+                new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
+        }
+        else if (result.IsLockedOut)
+        {
+            Logger.LogWarning("User account locked out.");
+            RedirectManager.RedirectTo("Account/Lockout");
+        }
+        else
+        {
+            errorMessage = "Error: Credenciales inválidas.";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+
+        [Display(Name = "Remember me?")]
+        public bool RememberMe { get; set; }
+
+        public PasskeyInputModel? Passkey { get; set; }
+    }
+}

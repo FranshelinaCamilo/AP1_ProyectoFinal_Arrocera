@@ -1,0 +1,387 @@
+﻿@page "/Account/Manage"
+@layout MainLayout
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Hosting
+@using Arrocera.Web.Data
+@using Arrocera.Web.Components.Layout
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IWebHostEnvironment Environment
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Mi perfil - Arrocera Duarte SRL</PageTitle>
+
+<style>
+    .profile-page-container {
+        width: 100%;
+        max-width: 1120px;
+        margin: 1.5rem auto 3rem auto;
+        padding: 0 1rem;
+    }
+
+    @@media (min-width: 992px) {
+        .profile-page-container {
+            width: 80%;
+        }
+    }
+
+    .profile-header {
+        border-bottom: 2px solid #cbd5e1;
+        padding-bottom: 0.85rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-card {
+        width: 100%;
+        background: #ffffff;
+        border: 1.5px solid #94a3b8;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 12px 30px rgba(6, 9, 61, 0.08);
+    }
+
+    .profile-card-top {
+        background-color: #f4f6fb;
+        border-bottom: 1px solid #cbd5e1;
+        padding: 1.5rem 2.25rem;
+    }
+
+    .profile-card-body {
+        padding: 2.25rem;
+    }
+
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #0A0C2E;
+        background-color: #ffffff;
+        flex-shrink: 0;
+    }
+
+    .avatar-fallback {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background-color: #0A0C2E;
+        color: #ffffff;
+        font-size: 2.15rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid #dce2f5;
+        flex-shrink: 0;
+    }
+
+    .btn-arrocera-primary {
+        background-color: #0A0C2E;
+        border-color: #0A0C2E;
+        color: #ffffff;
+        font-weight: 600;
+        padding: 0.8rem 1.5rem;
+        border-radius: 10px;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+        .btn-arrocera-primary:hover,
+        .btn-arrocera-primary:focus {
+            background-color: #06093D;
+            border-color: #06093D;
+            color: #ffffff;
+        }
+
+    .form-control {
+        border-radius: 10px;
+        border-color: #94a3b8;
+        color: #0A0C2E;
+        padding-top: 1.625rem;
+        padding-bottom: 0.625rem;
+        min-height: 58px;
+    }
+
+        .form-control:focus {
+            border-color: #06093D;
+            box-shadow: 0 0 0 0.2rem rgba(6, 9, 61, 0.15);
+        }
+
+    input[type="file"].form-control {
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+        min-height: auto;
+    }
+</style>
+
+<div class="profile-page-container">
+    <div class="profile-header">
+        <h3 class="fw-bold mb-1" style="color: #06093D;">Mi perfil</h3>
+        <p class="small mb-0" style="color: #11184A;">Administra tu información personal y fotografía de usuario</p>
+    </div>
+
+    <StatusMessage />
+
+    <div class="profile-card">
+        <EditForm Model="Input"
+                  FormName="profile"
+                  OnValidSubmit="OnValidSubmitAsync"
+                  method="post"
+                  enctype="multipart/form-data">
+            <DataAnnotationsValidator />
+
+            <div class="profile-card-top">
+                <div class="d-flex flex-column flex-sm-row align-items-center gap-4">
+                    @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                    {
+                        <img src="@avatarUrl" alt="Foto de perfil" class="avatar-preview" />
+                    }
+                    else
+                    {
+                        <div class="avatar-fallback">
+                            @GetInitials(Input.NombreCompleto ?? username)
+                        </div>
+                    }
+
+                    <div class="flex-grow-1 w-100 text-center text-sm-start">
+                        <div class="fw-bold mb-1" style="color: #06093D; font-size: 1.05rem;">
+                            @(string.IsNullOrWhiteSpace(Input.NombreCompleto) ? username : Input.NombreCompleto)
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(Input.Cargo))
+                        {
+                            <div class="small mb-2" style="color: #11184A;">@Input.Cargo</div>
+                        }
+                        <label for="avatarFile" class="form-label fw-semibold small mb-1" style="color: #06093D;">
+                            Foto de perfil (JPG, PNG, WEBP — máx. 2 MB)
+                        </label>
+                        <input type="file"
+                               id="avatarFile"
+                               name="avatarFile"
+                               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                               class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-card-body">
+                <ValidationSummary class="text-danger small mb-3" role="alert" />
+
+                <div class="form-floating mb-3">
+                    <input type="text"
+                           value="@username"
+                           id="username"
+                           class="form-control"
+                           placeholder="Usuario"
+                           disabled />
+                    <label for="username" class="form-label">Correo / Usuario</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.NombreCompleto"
+                               id="Input.NombreCompleto"
+                               class="form-control"
+                               placeholder="Nombre completo" />
+                    <label for="Input.NombreCompleto" class="form-label">Nombre completo</label>
+                    <ValidationMessage For="() => Input.NombreCompleto" class="text-danger small" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.Cargo"
+                               id="Input.Cargo"
+                               class="form-control"
+                               placeholder="Cargo" />
+                    <label for="Input.Cargo" class="form-label">Cargo</label>
+                    <ValidationMessage For="() => Input.Cargo" class="text-danger small" />
+                </div>
+
+                <div class="form-floating mb-4">
+                    <InputText @bind-Value="Input.PhoneNumber"
+                               id="Input.PhoneNumber"
+                               class="form-control"
+                               placeholder="Teléfono" />
+                    <label for="Input.PhoneNumber" class="form-label">Teléfono</label>
+                    <ValidationMessage For="() => Input.PhoneNumber" class="text-danger small" />
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-lg btn-arrocera-primary px-5">
+                        Guardar cambios
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private const long MaxAvatarBytes = 2 * 1024 * 1024; // 2 MB
+    private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".jpg", ".jpeg", ".png", ".webp"
+    };
+
+    private ApplicationUser? user;
+    private string? username;
+    private string? phoneNumber;
+    private string? avatarUrl;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Input ??= new();
+
+        user = await UserManager.GetUserAsync(HttpContext.User);
+        if (user is null)
+        {
+            RedirectManager.RedirectToInvalidUser(UserManager, HttpContext);
+            return;
+        }
+
+        username = await UserManager.GetUserNameAsync(user);
+        phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+        avatarUrl = user.AvatarUrl;
+
+        Input.PhoneNumber ??= phoneNumber;
+        Input.NombreCompleto ??= user.NombreCompleto;
+        Input.Cargo ??= user.Cargo;
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        if (user is null)
+        {
+            RedirectManager.RedirectToInvalidUser(UserManager, HttpContext);
+            return;
+        }
+
+        var hasChanges = false;
+
+        if (Input.PhoneNumber != phoneNumber)
+        {
+            var setPhoneResult = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+            if (!setPhoneResult.Succeeded)
+            {
+                RedirectManager.RedirectToCurrentPageWithStatus("Error: No se pudo actualizar el teléfono.", HttpContext);
+                return;
+            }
+            hasChanges = true;
+        }
+
+        var nuevoNombre = Input.NombreCompleto?.Trim() ?? string.Empty;
+        var nuevoCargo = string.IsNullOrWhiteSpace(Input.Cargo) ? null : Input.Cargo.Trim();
+
+        if (user.NombreCompleto != nuevoNombre || user.Cargo != nuevoCargo)
+        {
+            user.NombreCompleto = nuevoNombre;
+            user.Cargo = nuevoCargo;
+            hasChanges = true;
+        }
+
+        IFormFile? avatarFile = HttpContext.Request.HasFormContentType
+            ? HttpContext.Request.Form.Files["avatarFile"]
+            : null;
+
+        if (avatarFile is not null && avatarFile.Length > 0)
+        {
+            var uploadError = await GuardarAvatarAsync(avatarFile, user);
+            if (uploadError is not null)
+            {
+                RedirectManager.RedirectToCurrentPageWithStatus($"Error: {uploadError}", HttpContext);
+                return;
+            }
+            hasChanges = true;
+        }
+
+        if (hasChanges)
+        {
+            var updateResult = await UserManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                RedirectManager.RedirectToCurrentPageWithStatus("Error: No se pudieron guardar los cambios del perfil.", HttpContext);
+                return;
+            }
+        }
+
+        await SignInManager.RefreshSignInAsync(user);
+        RedirectManager.RedirectToCurrentPageWithStatus("Tu perfil ha sido actualizado.", HttpContext);
+    }
+
+    private async Task<string?> GuardarAvatarAsync(IFormFile file, ApplicationUser targetUser)
+    {
+        if (file.Length > MaxAvatarBytes)
+        {
+            return "La imagen no puede superar los 2 MB.";
+        }
+
+        var ext = Path.GetExtension(file.FileName);
+        if (string.IsNullOrWhiteSpace(ext) || !AllowedExtensions.Contains(ext))
+        {
+            return "Solo se permiten imágenes JPG, PNG o WEBP.";
+        }
+
+        var webRoot = Environment.WebRootPath;
+        if (string.IsNullOrWhiteSpace(webRoot))
+        {
+            webRoot = Path.Combine(Environment.ContentRootPath, "wwwroot");
+        }
+
+        var avatarsFolder = Path.Combine(webRoot, "avatars");
+        Directory.CreateDirectory(avatarsFolder);
+
+        if (!string.IsNullOrWhiteSpace(targetUser.AvatarUrl) &&
+            targetUser.AvatarUrl.StartsWith("/avatars/", StringComparison.OrdinalIgnoreCase))
+        {
+            var oldFileName = Path.GetFileName(targetUser.AvatarUrl);
+            var oldFilePath = Path.Combine(avatarsFolder, oldFileName);
+            if (File.Exists(oldFilePath))
+            {
+                try { File.Delete(oldFilePath); } catch { }
+            }
+        }
+
+        var fileName = $"{targetUser.Id}_{Guid.NewGuid():N}{ext.ToLowerInvariant()}";
+        var fullPath = Path.Combine(avatarsFolder, fileName);
+
+        await using var stream = new FileStream(fullPath, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        targetUser.AvatarUrl = $"/avatars/{fileName}";
+        avatarUrl = targetUser.AvatarUrl;
+        return null;
+    }
+
+    private static string GetInitials(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return "AD";
+
+        var parts = text.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1)
+            return parts[0][0].ToString().ToUpperInvariant();
+
+        return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "El nombre completo es obligatorio.")]
+        [StringLength(120, ErrorMessage = "El {0} debe tener entre {2} y {1} caracteres.", MinimumLength = 2)]
+        [Display(Name = "Nombre completo")]
+        public string? NombreCompleto { get; set; }
+
+        [StringLength(80, ErrorMessage = "El {0} no puede superar los {1} caracteres.")]
+        [Display(Name = "Cargo")]
+        public string? Cargo { get; set; }
+
+        [Phone(ErrorMessage = "Ingresa un número de teléfono válido.")]
+        [Display(Name = "Teléfono")]
+        public string? PhoneNumber { get; set; }
+    }
+}

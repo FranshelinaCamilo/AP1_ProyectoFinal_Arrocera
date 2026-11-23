@@ -1,0 +1,278 @@
+﻿@page "/Account/Register"
+
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+@using Arrocera.Web.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject ILogger<Register> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Crear cuenta - Arrocera Duarte SRL</PageTitle>
+
+<style>
+    .register-wrapper {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f4f6fb 0%, #e4e9f4 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+
+    .register-card {
+        width: 100%;
+        max-width: 460px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 16px;
+        box-shadow: 0 12px 32px rgba(6, 9, 61, 0.08);
+        padding: 2.25rem;
+    }
+
+    .brand-badge {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background-color: #0A0C2E;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.15rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .btn-arrocera {
+        background-color: #0A0C2E;
+        border-color: #0A0C2E;
+        color: #ffffff;
+        font-weight: 600;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+        .btn-arrocera:hover,
+        .btn-arrocera:focus {
+            background-color: #06093D;
+            border-color: #06093D;
+            color: #ffffff;
+        }
+
+    .form-control {
+        border-radius: 10px;
+        border-color: #cbd5e1;
+        color: #0A0C2E;
+    }
+
+        .form-control:focus {
+            border-color: #06093D;
+            box-shadow: 0 0 0 0.2rem rgba(6, 9, 61, 0.15);
+        }
+</style>
+
+<div class="register-wrapper">
+    <div class="register-card">
+        <div class="text-center mb-4">
+            <div class="brand-badge">AD</div>
+            <h1 class="h4 fw-bold mb-1" style="color: #06093D;">Crear cuenta</h1>
+            <p class="small mb-0" style="color: #11184A;">Arrocera Duarte SRL — Laboratorio de Calidad</p>
+        </div>
+
+        <StatusMessage Message="@Message" />
+
+        <EditForm Model="Input" method="post" OnValidSubmit="RegisterUser" FormName="register">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger small mb-3" role="alert" />
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.NombreCompleto"
+                           id="Input.NombreCompleto"
+                           class="form-control"
+                           autocomplete="name"
+                           aria-required="true"
+                           placeholder="Nombre completo" />
+                <label for="Input.NombreCompleto">Nombre completo</label>
+                <ValidationMessage For="() => Input.NombreCompleto" class="text-danger small mt-1" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputSelect class="form-select" @bind-Value="Input.Cargo" placeholder="Ej. Analista de Calidad">
+                    <option value="" selected>Elija una opci&oacute;n</option>
+                    <option value="Administrador">Administrador</option>
+                    <option value="Analista">Analista</option>
+                </InputSelect>
+                <label for="Input.Cargo">Cargo</label>
+                <ValidationMessage For="() => Input.Cargo" class="text-danger small mt-1" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Email"
+                           id="Input.Email"
+                           class="form-control"
+                           autocomplete="username"
+                           aria-required="true"
+                           placeholder="correo@arroceraduarte.com" />
+                <label for="Input.Email">Correo electrónico</label>
+                <ValidationMessage For="() => Input.Email" class="text-danger small mt-1" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText type="password"
+                           @bind-Value="Input.Password"
+                           id="Input.Password"
+                           class="form-control"
+                           autocomplete="new-password"
+                           aria-required="true"
+                           placeholder="Contraseña" />
+                <label for="Input.Password">Contraseña</label>
+                <ValidationMessage For="() => Input.Password" class="text-danger small mt-1" />
+            </div>
+
+            <div class="form-floating mb-4">
+                <InputText type="password"
+                           @bind-Value="Input.ConfirmPassword"
+                           id="Input.ConfirmPassword"
+                           class="form-control"
+                           autocomplete="new-password"
+                           aria-required="true"
+                           placeholder="Confirmar contraseña" />
+                <label for="Input.ConfirmPassword">Confirmar contraseña</label>
+                <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger small mt-1" />
+            </div>
+
+            <button type="submit" class="w-100 btn btn-arrocera mb-3">
+                Registrarse
+            </button>
+
+            @*<div class="text-center">
+                <a href="@(NavigationManager.GetUriWithQueryParameters("/", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))"
+                   class="small text-decoration-none"
+                   style="color: #11184A;">
+                    ¿Ya tienes una cuenta? Inicia sesión
+                </a>
+            </div>*@
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private IEnumerable<IdentityError>? identityErrors;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = default!;
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+    protected override void OnInitialized()
+    {
+        Input ??= new();
+    }
+
+    public async Task RegisterUser(EditContext editContext)
+    {
+        var user = CreateUser();
+
+        user.NombreCompleto = Input.NombreCompleto.Trim();
+        user.Cargo = string.IsNullOrWhiteSpace(Input.Cargo) ? null : Input.Cargo.Trim();
+        user.Activo = true;
+        user.FechaCreacion = DateTime.UtcNow;
+        user.EmailConfirmed = true;
+
+        await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+        var emailStore = GetEmailStore();
+        await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+        var result = await UserManager.CreateAsync(user, Input.Password);
+
+        if (!result.Succeeded)
+        {
+            identityErrors = result.Errors;
+            return;
+        }
+
+        Logger.LogInformation("User created a new account with password.");
+
+        var userId = await UserManager.GetUserIdAsync(user);
+        var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+            NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+            new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
+
+        await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+
+        if (UserManager.Options.SignIn.RequireConfirmedAccount)
+        {
+            RedirectManager.RedirectTo(
+                "Account/RegisterConfirmation",
+                new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
+        }
+        else
+        {
+            await SignInManager.SignInAsync(user, isPersistent: false);
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+    }
+
+    private ApplicationUser CreateUser()
+    {
+        try
+        {
+            return Activator.CreateInstance<ApplicationUser>();
+        }
+        catch
+        {
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+        }
+    }
+
+    private IUserEmailStore<ApplicationUser> GetEmailStore()
+    {
+        if (!UserManager.SupportsUserEmail)
+        {
+            throw new NotSupportedException("The default UI requires a user store with email support.");
+        }
+        return (IUserEmailStore<ApplicationUser>)UserStore;
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "El nombre completo es obligatorio.")]
+        [StringLength(120, ErrorMessage = "El {0} debe tener entre {2} y {1} caracteres.", MinimumLength = 2)]
+        [Display(Name = "Nombre completo")]
+        public string NombreCompleto { get; set; } = "";
+
+        [StringLength(80, ErrorMessage = "El {0} no puede superar los {1} caracteres.")]
+        [Display(Name = "Cargo")]
+        public string? Cargo { get; set; }
+
+        [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
+        [EmailAddress(ErrorMessage = "Ingresa un correo electrónico válido.")]
+        [Display(Name = "Correo electrónico")]
+        public string Email { get; set; } = "";
+
+        [Required(ErrorMessage = "La contraseña es obligatoria.")]
+        [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y máximo {1} caracteres.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Contraseña")]
+        public string Password { get; set; } = "";
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirmar contraseña")]
+        [Compare("Password", ErrorMessage = "La contraseña y su confirmación no coinciden.")]
+        public string ConfirmPassword { get; set; } = "";
+    }
+}
