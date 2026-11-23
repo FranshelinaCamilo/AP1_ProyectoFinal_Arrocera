@@ -1,6 +1,7 @@
 using Arrocera.Web.Components;
 using Arrocera.Web.Components.Account;
 using Arrocera.Web.Data;
+using Arrocera.Web.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+builder.Services.AddScoped<ClientesService>();
 
 var app = builder.Build();
 
