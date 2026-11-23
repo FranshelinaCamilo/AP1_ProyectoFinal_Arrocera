@@ -1,0 +1,336 @@
+﻿@page "/Account/Users"
+@layout MainLayout
+
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Arrocera.Web.Data
+@using Arrocera.Web.Components.Layout
+
+@attribute [Authorize]
+
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Usuarios - Arrocera Duarte SRL</PageTitle>
+
+<style>
+    .users-page-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 1.5rem auto 3rem auto;
+        padding: 0 1rem;
+    }
+
+    .users-header {
+        border-bottom: 2px solid #cbd5e1;
+        padding-bottom: 0.85rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .users-card {
+        width: 100%;
+        background: #ffffff;
+        border: 1.5px solid #94a3b8;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 12px 30px rgba(6, 9, 61, 0.08);
+    }
+
+    .users-card-top {
+        background-color: #f4f6fb;
+        border-bottom: 1px solid #cbd5e1;
+        padding: 1.15rem 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .user-avatar-sm {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #0A0C2E;
+        background-color: #ffffff;
+        flex-shrink: 0;
+    }
+
+    .user-initials-sm {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #0A0C2E;
+        color: #ffffff;
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .btn-arrocera-primary {
+        background-color: #0A0C2E;
+        border-color: #0A0C2E;
+        color: #ffffff;
+        font-weight: 600;
+        padding: 0.55rem 1.15rem;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+        .btn-arrocera-primary:hover,
+        .btn-arrocera-primary:focus {
+            background-color: #06093D;
+            border-color: #06093D;
+            color: #ffffff;
+        }
+
+    .btn-arrocera-edit {
+        background-color: #ffffff;
+        border: 1.5px solid #0A0C2E;
+        color: #0A0C2E;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+        .btn-arrocera-edit:hover,
+        .btn-arrocera-edit:focus {
+            background-color: #0A0C2E;
+            color: #ffffff;
+        }
+
+    .table.quickgrid {
+        margin-bottom: 0;
+        width: 100%;
+    }
+
+    .table.quickgrid thead th {
+        background-color: #eef1f6;
+        color: #06093D;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        border-bottom: 1.5px solid #cbd5e1;
+        padding: 0.85rem 1rem;
+        white-space: nowrap;
+    }
+
+    .table.quickgrid tbody td {
+        color: #0A0C2E;
+        vertical-align: middle;
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table.quickgrid tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    .badge-activo {
+        background-color: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+        font-weight: 600;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+    }
+
+    .badge-inactivo {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+        font-weight: 600;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+    }
+
+    .badge-sesion {
+        background-color: #dce2f5;
+        color: #06093D;
+        border: 1px solid #94a3b8;
+        font-weight: 600;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+    }
+
+    .search-input {
+        border-radius: 10px;
+        border: 1px solid #94a3b8;
+        color: #0A0C2E;
+        max-width: 320px;
+    }
+
+        .search-input:focus {
+            border-color: #06093D;
+            box-shadow: 0 0 0 0.2rem rgba(6, 9, 61, 0.15);
+        }
+</style>
+
+<div class="users-page-container">
+    <div class="users-header">
+        <div>
+            <h3 class="fw-bold mb-1" style="color: #06093D;">Usuarios registrados</h3>
+            <p class="small mb-0" style="color: #11184A;">Listado general del personal con acceso al sistema</p>
+        </div>
+
+        <a href="Account/Register" class="btn btn-arrocera-primary">
+            <span>+ Nuevo usuario</span>
+        </a>
+    </div>
+
+    <div class="users-card">
+        <div class="users-card-top">
+            <div class="small fw-semibold" style="color: #06093D;">
+                Total mostrados: @FilteredUsers.Count()
+            </div>
+
+            <input type="text"
+                   class="form-control form-control-sm search-input"
+                   placeholder="Buscar por nombre, correo o cargo..."
+                   @bind="searchTerm"
+                   @bind:event="oninput" />
+        </div>
+
+        @if (isLoading)
+        {
+            <div class="p-5 text-center" style="color: #11184A;">
+                Cargando usuarios...
+            </div>
+        }
+        else if (!FilteredUsers.Any())
+        {
+            <div class="p-5 text-center" style="color: #11184A;">
+                No se encontraron usuarios que coincidan con la búsqueda.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <QuickGrid Items="FilteredUsersQueryable" Class="table quickgrid" Pagination="paginationState">
+                    <TemplateColumn Title="Usuario" Sortable="true" SortBy="@(GridSort<ApplicationUser>.ByAscending(u => u.NombreCompleto))">
+                        <div class="d-flex align-items-center gap-3">
+                            @if (!string.IsNullOrWhiteSpace(context.AvatarUrl))
+                            {
+                                <img src="@context.AvatarUrl" alt="@context.NombreCompleto" class="user-avatar-sm" />
+                            }
+                            else
+                            {
+                                <span class="user-initials-sm">
+                                    @GetInitials(context.NombreCompleto ?? context.Email)
+                                </span>
+                            }
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-semibold" style="color: #06093D;">
+                                        @(string.IsNullOrWhiteSpace(context.NombreCompleto) ? "Sin nombre" : context.NombreCompleto)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </TemplateColumn>
+
+                    <PropertyColumn Property="@(u => string.IsNullOrWhiteSpace(u.Cargo) ? "—" : u.Cargo)" Title="Cargo" Sortable="true" />
+
+                    <PropertyColumn Property="@(u => u.Email)" Title="Correo" Sortable="true" />
+
+                    <TemplateColumn Title="Estado" Sortable="true" SortBy="@(GridSort<ApplicationUser>.ByDescending(u => u.Activo))">
+                        @if (context.Activo)
+                        {
+                            <span class="badge-activo">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="badge-inactivo">Inactivo</span>
+                        }
+                    </TemplateColumn>
+
+                    <TemplateColumn Title="Registro" Sortable="true" SortBy="@(GridSort<ApplicationUser>.ByDescending(u => u.FechaCreacion))">
+                        @context.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+
+            @if (paginationState.TotalItemCount.HasValue && paginationState.TotalItemCount > paginationState.ItemsPerPage)
+            {
+                <div class="px-4 py-2 border-top bg-light d-flex justify-content-end">
+                    <Paginator State="paginationState" />
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private List<ApplicationUser> users = new();
+    private string searchTerm = string.Empty;
+    private string? currentUserId;
+    private bool isLoading = true;
+    private PaginationState paginationState = new() { ItemsPerPage = 10 };
+
+    private IEnumerable<ApplicationUser> FilteredUsers =>
+        string.IsNullOrWhiteSpace(searchTerm)
+            ? users
+            : users.Where(u =>
+                (!string.IsNullOrWhiteSpace(u.NombreCompleto) && u.NombreCompleto.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(u.Email) && u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(u.Cargo) && u.Cargo.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
+
+    private IQueryable<ApplicationUser> FilteredUsersQueryable => FilteredUsers.AsQueryable();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        currentUserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        users = await UserManager.Users
+            .OrderByDescending(u => u.FechaCreacion)
+            .ToListAsync();
+
+        isLoading = false;
+    }
+
+    private bool EsUsuarioActual(ApplicationUser user)
+    {
+        return !string.IsNullOrWhiteSpace(currentUserId) &&
+               string.Equals(user.Id, currentUserId, StringComparison.Ordinal);
+    }
+
+    private static string GetInitials(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return "AD";
+
+        var parts = text.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1)
+            return parts[0][0].ToString().ToUpperInvariant();
+
+        return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
+    }
+}

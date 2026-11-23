@@ -1,0 +1,270 @@
+﻿@implements IDisposable
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Arrocera.Web.Data
+
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IServiceScopeFactory ScopeFactory
+
+<style>
+    .arrocera-top-row {
+        background-color: #eef1f6 !important;
+        border-bottom: 1px solid #cbd5e1;
+        border-right: 1px solid #cbd5e1;
+    }
+
+        .arrocera-top-row .navbar-brand {
+            color: #0A0C2E !important;
+            font-weight: 700;
+        }
+
+            .arrocera-top-row .navbar-brand:hover {
+                color: #06093D !important;
+            }
+
+    .arrocera-sidebar {
+        background-color: #f7f8fb;
+        border-right: 1px solid #cbd5e1;
+        min-height: 100%;
+    }
+
+        .arrocera-sidebar .nav-item .nav-link,
+        .arrocera-sidebar .nav-item button.nav-link {
+            color: #11184A !important;
+            font-weight: 500;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+            .arrocera-sidebar .nav-item .nav-link:hover,
+            .arrocera-sidebar .nav-item button.nav-link:hover {
+                color: #06093D !important;
+                background-color: #e5e9f2 !important;
+            }
+
+            .arrocera-sidebar .nav-item .nav-link.active {
+                color: #06093D !important;
+                background-color: #dce2f5 !important;
+                font-weight: 700;
+            }
+
+        .arrocera-sidebar button.nav-link {
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: 0;
+        }
+
+        .arrocera-sidebar .nav-menu-mask {
+            width: 1.15rem;
+            height: 1.15rem;
+            display: inline-block;
+            flex-shrink: 0;
+            background-color: #11184A;
+        }
+
+        .arrocera-sidebar .nav-link.active .nav-menu-mask {
+            background-color: #06093D;
+        }
+
+        .arrocera-sidebar .nav-icon-svg {
+            width: 1.15rem;
+            height: 1.15rem;
+            flex-shrink: 0;
+            color: #11184A;
+        }
+
+        .arrocera-sidebar .nav-link.active .nav-icon-svg {
+            color: #06093D;
+        }
+
+    .arrocera-nav-divider {
+        border-top: 1px solid #cbd5e1;
+        margin: 0.75rem 1rem;
+    }
+
+    .nav-user-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #94a3b8;
+        flex-shrink: 0;
+    }
+
+    .nav-user-initials {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background-color: #0A0C2E;
+        color: #ffffff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .nav-user-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<div class="top-row ps-3 navbar navbar-light arrocera-top-row">
+    <div class="container-fluid justify-content-center">
+        <a class="navbar-brand" href="/Home">
+            <img src="lib/imagenes/ArroceraLogo.png"
+                 style="max-height: 70px" />
+        </a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable arrocera-sidebar" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column pt-2">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Home" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu nav-menu-mask" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="bi bi-plus-square-fill-nav-menu nav-menu-mask" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="weather">
+                <span class="bi bi-list-nested-nav-menu nav-menu-mask" aria-hidden="true"></span> Weather
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Account/Users">
+                <span class="bi bi-lock-nav-menu nav-menu-mask" aria-hidden="true"></span> Usuarios
+            </NavLink>
+        </div>
+
+        <AuthorizeView>
+            <Authorized Context="authState">
+                <div class="arrocera-nav-divider"></div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/Register">
+                        <svg class="nav-icon-svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+                            <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5" />
+                        </svg>
+                        <span>Register</span>
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/Manage">
+                        @if (!string.IsNullOrWhiteSpace(currentAvatarUrl))
+                        {
+                            <img src="@currentAvatarUrl" alt="Avatar" class="nav-user-avatar" />
+                        }
+                        else
+                        {
+                            <span class="nav-user-initials">@GetInitials(currentDisplayName ?? authState.User.Identity?.Name)</span>
+                        }
+                        <span class="nav-user-label">@(string.IsNullOrWhiteSpace(currentDisplayName) ? authState.User.Identity?.Name : currentDisplayName)</span>
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <form action="Account/Logout" method="post">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="" />
+                        <button type="submit" class="nav-link">
+                            <span class="bi bi-arrow-bar-left-nav-menu nav-menu-mask" aria-hidden="true"></span> Logout
+                        </button>
+                    </form>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </nav>
+</div>
+
+@code {
+    private string? currentUrl;
+    private string? currentAvatarUrl;
+    private string? currentDisplayName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+
+        await LoadUserProfileAsync();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        _ = InvokeAsync(async () =>
+        {
+            await LoadUserProfileAsync();
+            StateHasChanged();
+        });
+    }
+
+    private void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            await LoadUserProfileAsync();
+            StateHasChanged();
+        });
+    }
+
+    private async Task LoadUserProfileAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var principal = authState.User;
+
+        if (principal.Identity?.IsAuthenticated != true)
+        {
+            currentAvatarUrl = null;
+            currentDisplayName = null;
+            return;
+        }
+
+        using var scope = ScopeFactory.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var appUser = await userManager.GetUserAsync(principal);
+
+        currentAvatarUrl = appUser?.AvatarUrl;
+        currentDisplayName = !string.IsNullOrWhiteSpace(appUser?.NombreCompleto)
+            ? appUser.NombreCompleto
+            : principal.Identity?.Name;
+    }
+
+    private static string GetInitials(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return "AD";
+
+        var parts = text.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1)
+            return parts[0][0].ToString().ToUpperInvariant();
+
+        return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+        AuthenticationStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+}
