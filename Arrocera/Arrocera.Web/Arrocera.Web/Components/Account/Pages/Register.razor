@@ -216,13 +216,13 @@
         if (UserManager.Options.SignIn.RequireConfirmedAccount)
         {
             RedirectManager.RedirectTo(
-                "Account/RegisterConfirmation",
+                "Account/Manage",
                 new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
         }
         else
         {
             await SignInManager.SignInAsync(user, isPersistent: false);
-            RedirectManager.RedirectTo(ReturnUrl);
+            RedirectManager.RedirectTo("Account/Manage");
         }
     }
 
