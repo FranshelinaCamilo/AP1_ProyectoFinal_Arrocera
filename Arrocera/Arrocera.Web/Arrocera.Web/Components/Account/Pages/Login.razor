@@ -187,8 +187,17 @@
         }
         else
         {
-            if (!editContext.Validate())
+            if (!await editContext.ValidateAsync())
             {
+                return;
+            }
+
+            var user = await UserManager.FindByEmailAsync(Input.Email)
+                       ?? await UserManager.FindByNameAsync(Input.Email);
+
+            if (user is not null && !user.Activo)
+            {
+                errorMessage = "Error: Esta cuenta está desactivada. Contacta al administrador.";
                 return;
             }
 

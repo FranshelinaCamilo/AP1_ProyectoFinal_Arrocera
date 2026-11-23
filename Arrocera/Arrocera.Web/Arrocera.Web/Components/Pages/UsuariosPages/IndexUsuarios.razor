@@ -101,6 +101,40 @@
             color: #ffffff;
         }
 
+    .btn-toggle-off {
+        background-color: #ffffff;
+        border: 1.5px solid #dc2626;
+        color: #dc2626;
+        font-weight: 600;
+        font-size: 0.82rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 8px;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+        .btn-toggle-off:hover,
+        .btn-toggle-off:focus {
+            background-color: #dc2626;
+            color: #ffffff;
+        }
+
+    .btn-toggle-on {
+        background-color: #ffffff;
+        border: 1.5px solid #166534;
+        color: #166534;
+        font-weight: 600;
+        font-size: 0.82rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 8px;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+        .btn-toggle-on:hover,
+        .btn-toggle-on:focus {
+            background-color: #166534;
+            color: #ffffff;
+        }
+
     .table.quickgrid {
         margin-bottom: 0;
         width: 100%;
@@ -184,6 +218,14 @@
         </a>
     </div>
 
+    @if (!string.IsNullOrWhiteSpace(statusMessage))
+    {
+        <div class="alert @(isError ? "alert-danger" : "alert-success") alert-dismissible fade show mb-3" role="alert">
+            @statusMessage
+            <button type="button" class="btn-close" @onclick="() => statusMessage = null" aria-label="Cerrar"></button>
+        </div>
+    }
+
     <div class="users-card">
         <div class="users-card-top">
             <div class="small fw-semibold" style="color: #06093D;">
@@ -213,8 +255,8 @@
         {
             <div class="table-responsive">
                 <QuickGrid Items="FilteredUsersQueryable" Class="table quickgrid" Pagination="paginationState">
-                    <TemplateColumn Title="Usuario" Sortable="true" Align="Align.Left" SortBy="@(GridSort<ApplicationUser>.ByAscending(u => u.NombreCompleto ?? string.Empty))">
-                        <div class="d-flex align-items-center gap-3">
+                    <TemplateColumn Title="Usuario" Sortable="true" SortBy="@(GridSort<ApplicationUser>.ByAscending(u => u.NombreCompleto ?? string.Empty))">
+                        <div class="d-flex align-items-center gap-3 m-3">
                             @if (!string.IsNullOrWhiteSpace(context.AvatarUrl))
                             {
                                 <img src="@context.AvatarUrl" alt="@(context.NombreCompleto ?? "Usuario")" class="user-avatar-sm" />
@@ -239,11 +281,11 @@
                         </div>
                     </TemplateColumn>
 
-                    <PropertyColumn Property="@(u => string.IsNullOrWhiteSpace(u.Cargo) ? "—" : u.Cargo)" Title="Cargo" Sortable="true" Align="Align.Left" />
+                    <PropertyColumn Property="@(u => string.IsNullOrWhiteSpace(u.Cargo) ? "—" : u.Cargo)" Title="Cargo" Sortable="true" />
 
-                    <PropertyColumn Property="@(u => u.Email ?? "—")" Title="Correo" Sortable="true" Align="Align.Left" />
+                    <PropertyColumn Property="@(u => u.Email ?? "—")" Title="Correo" Sortable="true" />
 
-                    <TemplateColumn Title="Estado" Sortable="true" Align="Align.Left" SortBy="@(GridSort<ApplicationUser>.ByDescending(u => u.Activo))">
+                    <TemplateColumn Title="Estado" Sortable="true" SortBy="@(GridSort<ApplicationUser>.ByDescending(u => u.Activo))">
                         @if (context.Activo)
                         {
                             <span class="badge-activo">Activo</span>
@@ -254,8 +296,32 @@
                         }
                     </TemplateColumn>
 
-                    <TemplateColumn Title="Fecha de creaci&oacute;n" Sortable="true" Align="Align.Left" SortBy="@(GridSort<ApplicationUser>.ByDescending(u => u.FechaCreacion))">
+                    <TemplateColumn Title="Registro" Sortable="true" SortBy="@(GridSort<ApplicationUser>.ByDescending(u => u.FechaCreacion))">
                         @context.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")
+                    </TemplateColumn>
+
+                    <TemplateColumn Title="Acciones" Align="Align.End">
+                        @if (!EsUsuarioActual(context))
+                        {
+                            @if (context.Activo)
+                            {
+                                <button type="button"
+                                        class="btn-toggle-off"
+                                        disabled="@(busyUserId == context.Id)"
+                                        @onclick="() => AlternarEstadoAsync(context)">
+                                    Desactivar
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button"
+                                        class="btn-toggle-on"
+                                        disabled="@(busyUserId == context.Id)"
+                                        @onclick="() => AlternarEstadoAsync(context)">
+                                    Activar
+                                </button>
+                            }
+                        }
                     </TemplateColumn>
                 </QuickGrid>
             </div>
@@ -274,6 +340,9 @@
     private List<ApplicationUser> users = new();
     private string searchTerm = string.Empty;
     private string? currentUserId;
+    private string? busyUserId;
+    private string? statusMessage;
+    private bool isError;
     private bool isLoading = true;
     private PaginationState paginationState = new() { ItemsPerPage = 10 };
 
@@ -293,7 +362,6 @@
         await ActualizarUsuarioActualAsync();
 
         users = await UserManager.Users
-            .AsNoTracking()
             .OrderByDescending(u => u.FechaCreacion)
             .ToListAsync();
 
@@ -314,6 +382,51 @@
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         currentUserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+    }
+
+    private async Task AlternarEstadoAsync(ApplicationUser targetUser)
+    {
+        if (EsUsuarioActual(targetUser))
+        {
+            statusMessage = "No puedes desactivar tu propia cuenta con la sesión activa.";
+            isError = true;
+            return;
+        }
+
+        busyUserId = targetUser.Id;
+        statusMessage = null;
+
+        try
+        {
+            var dbUser = await UserManager.FindByIdAsync(targetUser.Id);
+            if (dbUser is null)
+            {
+                statusMessage = "El usuario ya no existe.";
+                isError = true;
+                return;
+            }
+
+            dbUser.Activo = !dbUser.Activo;
+            var result = await UserManager.UpdateAsync(dbUser);
+
+            if (result.Succeeded)
+            {
+                targetUser.Activo = dbUser.Activo;
+                statusMessage = dbUser.Activo
+                    ? $"Cuenta de '{dbUser.Email}' activada."
+                    : $"Cuenta de '{dbUser.Email}' desactivada.";
+                isError = false;
+            }
+            else
+            {
+                statusMessage = string.Join(" ", result.Errors.Select(e => e.Description));
+                isError = true;
+            }
+        }
+        finally
+        {
+            busyUserId = null;
+        }
     }
 
     private bool EsUsuarioActual(ApplicationUser user)
