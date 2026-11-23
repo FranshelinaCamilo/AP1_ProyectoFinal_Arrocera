@@ -1,14 +1,14 @@
 ﻿@page "/Account/Users"
 @layout MainLayout
+@rendermode InteractiveServer
+@implements IDisposable
 
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
 @using Arrocera.Web.Data
-@using Arrocera.Web.Components.Layout
 
 @attribute [Authorize]
 
@@ -101,54 +101,33 @@
             color: #ffffff;
         }
 
-    .btn-arrocera-edit {
-        background-color: #ffffff;
-        border: 1.5px solid #0A0C2E;
-        color: #0A0C2E;
-        font-weight: 600;
-        font-size: 0.85rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 8px;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        transition: background-color 0.15s ease, color 0.15s ease;
-    }
-
-        .btn-arrocera-edit:hover,
-        .btn-arrocera-edit:focus {
-            background-color: #0A0C2E;
-            color: #ffffff;
-        }
-
     .table.quickgrid {
         margin-bottom: 0;
         width: 100%;
     }
 
-    .table.quickgrid thead th {
-        background-color: #eef1f6;
-        color: #06093D;
-        font-weight: 700;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-        border-bottom: 1.5px solid #cbd5e1;
-        padding: 0.85rem 1rem;
-        white-space: nowrap;
-    }
+        .table.quickgrid thead th {
+            background-color: #eef1f6;
+            color: #06093D;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-bottom: 1.5px solid #cbd5e1;
+            padding: 0.85rem 1rem;
+            white-space: nowrap;
+        }
 
-    .table.quickgrid tbody td {
-        color: #0A0C2E;
-        vertical-align: middle;
-        padding: 0.85rem 1rem;
-        border-bottom: 1px solid #e2e8f0;
-    }
+        .table.quickgrid tbody td {
+            color: #0A0C2E;
+            vertical-align: middle;
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
 
-    .table.quickgrid tbody tr:hover {
-        background-color: #f8fafc;
-    }
+        .table.quickgrid tbody tr:hover {
+            background-color: #f8fafc;
+        }
 
     .badge-activo {
         background-color: #dcfce7;
@@ -234,11 +213,11 @@
         {
             <div class="table-responsive">
                 <QuickGrid Items="FilteredUsersQueryable" Class="table quickgrid" Pagination="paginationState">
-                    <TemplateColumn Title="Usuario" Sortable="true" SortBy="@(GridSort<ApplicationUser>.ByAscending(u => u.NombreCompleto))">
+                    <TemplateColumn Title="Usuario" Sortable="true" Align="Align.Left" SortBy="@(GridSort<ApplicationUser>.ByAscending(u => u.NombreCompleto ?? string.Empty))">
                         <div class="d-flex align-items-center gap-3">
                             @if (!string.IsNullOrWhiteSpace(context.AvatarUrl))
                             {
-                                <img src="@context.AvatarUrl" alt="@context.NombreCompleto" class="user-avatar-sm" />
+                                <img src="@context.AvatarUrl" alt="@(context.NombreCompleto ?? "Usuario")" class="user-avatar-sm" />
                             }
                             else
                             {
@@ -251,16 +230,20 @@
                                     <span class="fw-semibold" style="color: #06093D;">
                                         @(string.IsNullOrWhiteSpace(context.NombreCompleto) ? "Sin nombre" : context.NombreCompleto)
                                     </span>
+                                    @if (EsUsuarioActual(context))
+                                    {
+                                        <span class="badge-sesion">Tu sesión</span>
+                                    }
                                 </div>
                             </div>
                         </div>
                     </TemplateColumn>
 
-                    <PropertyColumn Property="@(u => string.IsNullOrWhiteSpace(u.Cargo) ? "—" : u.Cargo)" Title="Cargo" Sortable="true" />
+                    <PropertyColumn Property="@(u => string.IsNullOrWhiteSpace(u.Cargo) ? "—" : u.Cargo)" Title="Cargo" Sortable="true" Align="Align.Left" />
 
-                    <PropertyColumn Property="@(u => u.Email)" Title="Correo" Sortable="true" />
+                    <PropertyColumn Property="@(u => u.Email ?? "—")" Title="Correo" Sortable="true" Align="Align.Left" />
 
-                    <TemplateColumn Title="Estado" Sortable="true" SortBy="@(GridSort<ApplicationUser>.ByDescending(u => u.Activo))">
+                    <TemplateColumn Title="Estado" Sortable="true" Align="Align.Left" SortBy="@(GridSort<ApplicationUser>.ByDescending(u => u.Activo))">
                         @if (context.Activo)
                         {
                             <span class="badge-activo">Activo</span>
@@ -271,7 +254,7 @@
                         }
                     </TemplateColumn>
 
-                    <TemplateColumn Title="Registro" Sortable="true" SortBy="@(GridSort<ApplicationUser>.ByDescending(u => u.FechaCreacion))">
+                    <TemplateColumn Title="Fecha de creaci&oacute;n" Sortable="true" Align="Align.Left" SortBy="@(GridSort<ApplicationUser>.ByDescending(u => u.FechaCreacion))">
                         @context.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy")
                     </TemplateColumn>
                 </QuickGrid>
@@ -306,14 +289,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        currentUserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+        await ActualizarUsuarioActualAsync();
 
         users = await UserManager.Users
+            .AsNoTracking()
             .OrderByDescending(u => u.FechaCreacion)
             .ToListAsync();
 
         isLoading = false;
+    }
+
+    private void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            var authState = await task;
+            currentUserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            StateHasChanged();
+        });
+    }
+
+    private async Task ActualizarUsuarioActualAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        currentUserId = authState.User.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 
     private bool EsUsuarioActual(ApplicationUser user)
@@ -332,5 +332,10 @@
             return parts[0][0].ToString().ToUpperInvariant();
 
         return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
+    }
+
+    public void Dispose()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
     }
 }
