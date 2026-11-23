@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Arrocera.Web.Tests/Arrocera.Web.Tests.csproj" />
   <Project Path="Arrocera.Web/Arrocera.Web.csproj" />
 </Solution>

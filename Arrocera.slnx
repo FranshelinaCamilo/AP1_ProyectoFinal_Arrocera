@@ -3,4 +3,5 @@
   <Project Path="Arrocera/Arrocera.Data/Arrocera.Data.csproj" />
   <Project Path="Arrocera/Arrocera.Services/Arrocera.Services.csproj" />
   <Project Path="Arrocera/Arrocera.Web/Arrocera.Web/Arrocera.Web.csproj" />
+  <Project Path="Arrocera/TestProject1/TestProject1.csproj" Id="c201fafa-5a3c-4d05-8803-4f7cf41eb730" />
 </Solution>
