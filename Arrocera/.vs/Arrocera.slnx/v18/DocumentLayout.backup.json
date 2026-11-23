@@ -1,0 +1,124 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C66C441C-A887-CF0B-F11C-18EE6C92FE42}|Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|c:\\programacionaplicadai\\ap1_proyectofinal_arrocera\\arrocera\\arrocera.web\\arrocera.web\\components\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C66C441C-A887-CF0B-F11C-18EE6C92FE42}|Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|solutionrelative:arrocera.web\\arrocera.web\\components\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C66C441C-A887-CF0B-F11C-18EE6C92FE42}|Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|c:\\programacionaplicadai\\ap1_proyectofinal_arrocera\\arrocera\\arrocera.web\\arrocera.web\\components\\pages\\clientespages\\clientesindex.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C66C441C-A887-CF0B-F11C-18EE6C92FE42}|Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|solutionrelative:arrocera.web\\arrocera.web\\components\\pages\\clientespages\\clientesindex.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C66C441C-A887-CF0B-F11C-18EE6C92FE42}|Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|c:\\programacionaplicadai\\ap1_proyectofinal_arrocera\\arrocera\\arrocera.web\\arrocera.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C66C441C-A887-CF0B-F11C-18EE6C92FE42}|Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|solutionrelative:arrocera.web\\arrocera.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C66C441C-A887-CF0B-F11C-18EE6C92FE42}|Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|c:\\programacionaplicadai\\ap1_proyectofinal_arrocera\\arrocera\\arrocera.web\\arrocera.web\\components\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C66C441C-A887-CF0B-F11C-18EE6C92FE42}|Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|solutionrelative:arrocera.web\\arrocera.web\\components\\layout\\navmenu.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C66C441C-A887-CF0B-F11C-18EE6C92FE42}|Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|c:\\programacionaplicadai\\ap1_proyectofinal_arrocera\\arrocera\\arrocera.web\\arrocera.web\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C66C441C-A887-CF0B-F11C-18EE6C92FE42}|Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|solutionrelative:arrocera.web\\arrocera.web\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "App.razor",
+              "DocumentMoniker": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Components\\App.razor",
+              "RelativeDocumentMoniker": "Arrocera.Web\\Arrocera.Web\\Components\\App.razor",
+              "ToolTip": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Components\\App.razor",
+              "RelativeToolTip": "Arrocera.Web\\Arrocera.Web\\Components\\App.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAB1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-23T02:41:59.837Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "NavMenu.razor",
+              "DocumentMoniker": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Components\\Layout\\NavMenu.razor",
+              "RelativeDocumentMoniker": "Arrocera.Web\\Arrocera.Web\\Components\\Layout\\NavMenu.razor",
+              "ToolTip": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Components\\Layout\\NavMenu.razor",
+              "RelativeToolTip": "Arrocera.Web\\Arrocera.Web\\Components\\Layout\\NavMenu.razor",
+              "ViewState": "AgIAAIMAAAAAAAAAAAAAAI0AAABvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-23T02:32:17.165Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ClientesIndex.razor",
+              "DocumentMoniker": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Components\\Pages\\ClientesPages\\ClientesIndex.razor",
+              "RelativeDocumentMoniker": "Arrocera.Web\\Arrocera.Web\\Components\\Pages\\ClientesPages\\ClientesIndex.razor",
+              "ToolTip": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Components\\Pages\\ClientesPages\\ClientesIndex.razor",
+              "RelativeToolTip": "Arrocera.Web\\Arrocera.Web\\Components\\Pages\\ClientesPages\\ClientesIndex.razor",
+              "ViewState": "AgIAAH4AAAAAAAAAAAAAAAAAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-23T02:31:01.228Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Program.cs",
+              "RelativeDocumentMoniker": "Arrocera.Web\\Arrocera.Web\\Program.cs",
+              "ToolTip": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Program.cs",
+              "RelativeToolTip": "Arrocera.Web\\Arrocera.Web\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-23T02:27:30.984Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "Arrocera.Web\\Arrocera.Web\\Data\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "Arrocera.Web\\Arrocera.Web\\Data\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-23T02:27:11.261Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 1354,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

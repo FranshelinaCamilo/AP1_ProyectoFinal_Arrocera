@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Arrocera/Arrocera.Api/Arrocera.Api.csproj" />
+  <Project Path="Arrocera/Arrocera.Data/Arrocera.Data.csproj" />
+  <Project Path="Arrocera/Arrocera.Services/Arrocera.Services.csproj" />
+  <Project Path="Arrocera/Arrocera.Web/Arrocera.Web/Arrocera.Web.csproj" />
+</Solution>
