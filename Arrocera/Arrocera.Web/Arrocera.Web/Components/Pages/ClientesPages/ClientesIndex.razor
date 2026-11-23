@@ -1,0 +1,184 @@
+﻿@page "/Clientes"
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Arrocera.Web.Models
+@using Arrocera.Web.Services
+
+@attribute [Authorize]
+@inject ClientesService clientesService
+
+<PageTitle>Registro de Clientes - Arrocera Duarte SRL</PageTitle>
+
+<style>
+    .clientes-card {
+        border: 1.5px solid #94a3b8;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .clientes-card-header {
+        background-color: #f4f6fb;
+        border-bottom: 1px solid #cbd5e1;
+        color: #06093D;
+    }
+
+    .btn-navy {
+        background-color: #0A0C2E;
+        border-color: #0A0C2E;
+        color: #ffffff;
+    }
+
+        .btn-navy:hover,
+        .btn-navy:focus {
+            background-color: #06093D;
+            border-color: #06093D;
+            color: #ffffff;
+        }
+
+    .btn-outline-navy {
+        border-color: #0A0C2E;
+        color: #0A0C2E;
+    }
+
+        .btn-outline-navy:hover,
+        .btn-outline-navy:focus {
+            background-color: #0A0C2E;
+            border-color: #0A0C2E;
+            color: #ffffff;
+        }
+
+    .badge-activo {
+        background-color: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+        font-weight: 600;
+        padding: 0.3rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+    }
+
+    .badge-inactivo {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+        font-weight: 600;
+        padding: 0.3rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+    }
+</style>
+
+<div class="container mt-4 mb-5">
+    <div class="card shadow-lg clientes-card">
+        <div class="card-header clientes-card-header d-flex justify-content-between align-items-center py-3 px-4">
+            <h5 class="card-title mb-0 fw-bold">Registro de Clientes</h5>
+            <a href="/Cliente/Crear" class="btn btn-navy">
+                <span class="bi bi-plus-square me-1"></span> Crear
+            </a>
+        </div>
+
+        <div class="card-body px-4 py-3">
+            @* Labels *@
+            <div class="row">
+                <div class="col-md-3 col-sm-6">
+                    <label class="col-form-label"><strong>Filtrar por</strong></label>
+                </div>
+
+                <div class="col-md-4 col-sm-6">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            @* Inputs y botones *@
+            <div class="row align-items-center g-2">
+                <div class="col-md-3 col-sm-6">
+                    <InputSelect class="form-select" @bind-Value="Filtro">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Id">Id</option>
+                        <option value="Nombre">Nombre</option>
+                        <option value="Rnc">RNC</option>
+                    </InputSelect>
+                </div>
+
+                <div class="col-md-4 col-sm-6">
+                    <div class="input-group">
+                        <input class="form-control" @bind="ValorFiltro" @bind:event="oninput" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-navy bi bi-search" @onclick="Buscar" title="Buscar"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid mt-3 table-responsive">
+                <QuickGrid Items="@itemsQueryable" Class="table table-hover align-middle mb-0">
+                    <PropertyColumn Property="@(c => c.ClienteId)" Title="Id" Sortable="true" />
+                    <PropertyColumn Property="@(c => c.Nombre)" Title="Nombre" Sortable="true" Align="Align.Left" />
+                    <PropertyColumn Property="@(c => c.Rnc)" Title="RNC" Sortable="true" Align="Align.Left" />
+                    <PropertyColumn Property="@(c => string.IsNullOrWhiteSpace(c.Telefono) ? "—" : c.Telefono)" Title="Tel&eacute;fono" Sortable="true" Align="Align.Left" />
+                    <TemplateColumn Title="Estado" Sortable="true" SortBy="@(GridSort<Clientes>.ByDescending(c => c.Activo))">
+                        @if (context.Activo)
+                        {
+                            <span class="badge-activo">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="badge-inactivo">Inactivo</span>
+                        }
+                    </TemplateColumn>
+                    <TemplateColumn Title="Opciones">
+                        <a href="/Cliente/Modificar/@context.ClienteId" class="btn btn-sm btn-outline-navy bi bi-pencil-square" title="Modificar"></a>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between align-items-center px-4 py-3 bg-light">
+            <label class="mb-0"><strong>Cantidad: </strong> @(itemsQueryable?.Count() ?? 0)</label>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Clientes> ListaClientes { get; set; } = new();
+    private IQueryable<Clientes>? itemsQueryable;
+
+    private string Filtro { get; set; } = string.Empty;
+    private string ValorFiltro { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await clientesService.GetList(c => true);
+        result.OnSuccess(lista => ListaClientes = lista);
+        itemsQueryable = ListaClientes.AsQueryable();
+    }
+
+    private async Task Buscar()
+    {
+        if (string.IsNullOrWhiteSpace(ValorFiltro))
+        {
+            var result = await clientesService.GetList(c => true);
+            result.OnSuccess(lista => ListaClientes = lista);
+        }
+        else if (Filtro == "Id")
+        {
+            var termino = ValorFiltro.Trim();
+            var result = await clientesService.GetList(c => c.ClienteId.ToString().Contains(termino));
+            result.OnSuccess(lista => ListaClientes = lista);
+        }
+        else if (Filtro == "Nombre")
+        {
+            var termino = ValorFiltro.Trim().ToLower();
+            var result = await clientesService.GetList(c => c.Nombre.ToLower().Contains(termino));
+            result.OnSuccess(lista => ListaClientes = lista);
+        }
+        else if (Filtro == "Rnc")
+        {
+            var termino = ValorFiltro.Trim().ToLower();
+            var result = await clientesService.GetList(c => c.Rnc.ToLower().Contains(termino));
+            result.OnSuccess(lista => ListaClientes = lista);
+        }
+
+        itemsQueryable = ListaClientes.AsQueryable();
+    }
+}
