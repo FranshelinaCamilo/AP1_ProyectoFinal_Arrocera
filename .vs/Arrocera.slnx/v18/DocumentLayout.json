@@ -3,12 +3,8 @@
   "WorkspaceRootPath": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C201FAFA-5A3C-4D05-8803-4F7CF41EB730}|Arrocera\\TestProject1\\TestProject1.csproj|c:\\programacionaplicadai\\ap1_proyectofinal_arrocera\\arrocera\\testproject1\\unittest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C201FAFA-5A3C-4D05-8803-4F7CF41EB730}|Arrocera\\TestProject1\\TestProject1.csproj|solutionrelative:arrocera\\testproject1\\unittest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B57499A2-65EC-019A-9B7B-D726357D1E01}|Arrocera\\Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|c:\\programacionaplicadai\\ap1_proyectofinal_arrocera\\arrocera\\arrocera.web\\arrocera.web\\services\\clientesservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B57499A2-65EC-019A-9B7B-D726357D1E01}|Arrocera\\Arrocera.Web\\Arrocera.Web\\Arrocera.Web.csproj|solutionrelative:arrocera\\arrocera.web\\arrocera.web\\services\\clientesservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web.Tests\\UnitTest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Arrocera\\Arrocera.Web\\Arrocera.Web.Tests\\UnitTest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -26,31 +22,17 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ClientesService.cs",
-              "DocumentMoniker": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Services\\ClientesService.cs",
-              "RelativeDocumentMoniker": "Arrocera\\Arrocera.Web\\Arrocera.Web\\Services\\ClientesService.cs",
-              "ToolTip": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web\\Services\\ClientesService.cs",
-              "RelativeToolTip": "Arrocera\\Arrocera.Web\\Arrocera.Web\\Services\\ClientesService.cs",
-              "ViewState": "AgIAAEsAAAAAAAAAAAAUwFwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T23:43:57.456Z",
-              "EditorCaption": "",
-              "OwnerCaption": "%2"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
               "Title": "UnitTest1.cs",
-              "DocumentMoniker": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\TestProject1\\UnitTest1.cs",
-              "RelativeDocumentMoniker": "Arrocera\\TestProject1\\UnitTest1.cs",
-              "ToolTip": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\TestProject1\\UnitTest1.cs",
-              "RelativeToolTip": "Arrocera\\TestProject1\\UnitTest1.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAA0AAAAFAAAAAAAAAA==",
+              "DocumentMoniker": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web.Tests\\UnitTest1.cs",
+              "RelativeDocumentMoniker": "Arrocera\\Arrocera.Web\\Arrocera.Web.Tests\\UnitTest1.cs",
+              "ToolTip": "C:\\ProgramacionAplicadaI\\AP1_ProyectoFinal_Arrocera\\Arrocera\\Arrocera.Web\\Arrocera.Web.Tests\\UnitTest1.cs",
+              "RelativeToolTip": "Arrocera\\Arrocera.Web\\Arrocera.Web.Tests\\UnitTest1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T23:36:38.924Z",
+              "WhenOpened": "2026-11-23T23:26:54.622Z",
               "EditorCaption": "",
-              "OwnerCaption": "%2"
+              "OwnerCaption": "%3"
             }
           ]
         },
